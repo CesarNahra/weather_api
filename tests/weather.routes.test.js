@@ -44,20 +44,13 @@ test("health endpoint should return 200", async () => {
 
 test("current weather endpoint should reject a missing location", async () => {
     await withServer(async (baseUrl) => {
-        const response = await fetch(
+        const res = await fetch(
             `${baseUrl}/api/v1/weather/current`
         );
 
-        const responseText = await response.text();
+        const body = await res.json();
 
-        assert.equal(
-            response.status,
-            400,
-            `Expected HTTP 400, received HTTP ${response.status}. Response: ${responseText}`
-        );
-
-        const body = JSON.parse(responseText);
-
+        assert.equal(res.status, 400);
         assert.equal(body.error.code, "MISSING_LOCATION");
     });
 });

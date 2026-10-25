@@ -6,7 +6,7 @@ const MIN_FORECAST_DAYS = 1;
 const MAX_FORECAST_DAYS = 3;
 
 export function validateLocation(location) {
-    if (typeof location !== "string" || location.trim() === "") {
+    if (typeof location !== "string" || !location.trim()) {
         throw new AppError(
             "The location parameter is required.",
             400,
