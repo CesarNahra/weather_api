@@ -58,3 +58,42 @@ export function validateSearchQuery(query) {
 
     return query.trim();
 }
+
+export function validateCurrentWeatherRequest(req, res, next) {
+    try {
+        res.locals.weatherQuery = {
+            location: validateLocation(req.query.location),
+            units: validateUnits(req.query.units)
+        };
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
+
+export function validateForecastRequest(req, res, next) {
+    try {
+        res.locals.weatherQuery = {
+            location: validateLocation(req.query.location),
+            days: validateForecastDays(req.query.days),
+            units: validateUnits(req.query.units)
+        };
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
+
+export function validateSearchRequest(req, res, next) {
+    try {
+        res.locals.weatherQuery = {
+            query: validateSearchQuery(req.query.query)
+        };
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
