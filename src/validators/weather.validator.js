@@ -63,7 +63,8 @@ export function validateCurrentWeatherRequest(req, res, next) {
     try {
         res.locals.weatherQuery = {
             location: validateLocation(req.query.location),
-            units: validateUnits(req.query.units)
+            units: validateUnits(req.query.units),
+            lang: validateLanguage(req.query.lang)
         };
 
         next();
@@ -77,7 +78,8 @@ export function validateForecastRequest(req, res, next) {
         res.locals.weatherQuery = {
             location: validateLocation(req.query.location),
             days: validateForecastDays(req.query.days),
-            units: validateUnits(req.query.units)
+            units: validateUnits(req.query.units),
+            lang: validateLanguage(req.query.lang)
         };
 
         next();
