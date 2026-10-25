@@ -157,7 +157,9 @@ export class WeatherService {
                 wind_speed: units === "imperial"
                     ? daily.maxwind_mph
                     : daily.maxwind_kph,
-                precipitation: getPrecipitation(daily, units),
+                precipitation: units === "imperial"
+                    ? daily.totalprecip_in
+                    : daily.totalprecip_mm,
                 humidity: daily.avghumidity,
                 chance_of_rain: daily.daily_chance_of_rain,
                 uv_index: daily.uv
