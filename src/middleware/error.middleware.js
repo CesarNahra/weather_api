@@ -6,7 +6,7 @@ export function errorHandler(error, req, res, next) {
     }
 
     if (error instanceof AppError) {
-        return response.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
             error: {
                 code: error.code,
                 message: error.message
@@ -16,7 +16,7 @@ export function errorHandler(error, req, res, next) {
 
     console.error("An unexpected application error occurred.");
 
-    return response.status(500).json({
+    return res.status(500).json({
         error: {
             code: "INTERNAL_SERVER_ERROR",
             message: "An unexpected error occurred."
