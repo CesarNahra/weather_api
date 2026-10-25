@@ -1,28 +1,25 @@
+import { AppError } from "../utils/app-error.js";
+
 export function errorHandler(error, req, res, next) {
     if (res.headersSent) {
         return next(error);
     }
 
-    const statusCode = error.statusCode || 500;
-
-    const errorCode =
-        statusCode >= 500
-            ? "INTERNAL_SERVER_ERROR"
-            : "REQUEST_ERROR";
-
-    const message =
-        statusCode >= 500
-            ? "An unexpected error occurred."
-            : error.message;
-
-    if (statusCode >= 500) {
-        console.error("An unexpected application error occurred.");
+    if (error instanceof AppError) {
+        return response.status(error.statusCode).json({
+            error: {
+                code: error.code,
+                message: error.message
+            }
+        });
     }
 
-    res.status(statusCode).json({
+    console.error("An unexpected application error occurred.");
+
+    return response.status(500).json({
         error: {
-            code: errorCode,
-            message
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An unexpected error occurred."
         }
     });
 }
