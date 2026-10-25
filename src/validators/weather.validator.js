@@ -97,3 +97,22 @@ export function validateSearchRequest(req, res, next) {
         next(error);
     }
 }
+
+export function validateLanguage(lang) {
+    if (lang === undefined || lang === "") {
+        return undefined;
+    }
+
+    if (
+        typeof lang !== "string" ||
+        !/^[a-z]{2}$/.test(lang.trim())
+    ) {
+        throw new AppError(
+            "The lang parameter must be a two-letter language code.",
+            400,
+            "INVALID_LANGUAGE"
+        );
+    }
+
+    return lang.trim();
+}
