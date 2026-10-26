@@ -1,0 +1,224 @@
+openapi: 3.0.3
+
+info:
+  title: Weather API
+  version: 1.0.0
+  description: REST API for retrieving current weather, forecasts, and location search results.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Health
+    description: API health checks
+  - name: Weather
+    description: Weather information and location search
+
+paths:
+  /api/v1/health:
+    get:
+      tags:
+        - Health
+      summary: Check API health
+      operationId: getHealth
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/v1/weather/current:
+    get:
+      tags:
+        - Weather
+      summary: Get current weather
+      operationId: getCurrentWeather
+      parameters:
+        - $ref: "#/components/parameters/Location"
+        - $ref: "#/components/parameters/Units"
+        - $ref: "#/components/parameters/Language"
+      responses:
+        "200":
+          description: Current weather retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Normalized current weather data returned by the service.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+  /api/v1/weather/forecast:
+    get:
+      tags:
+        - Weather
+      summary: Get weather forecast
+      operationId: getWeatherForecast
+      parameters:
+        - $ref: "#/components/parameters/Location"
+        - name: days
+          in: query
+          required: false
+          description: Number of forecast days. Supported range is 1 to 3.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 3
+            default: 3
+        - $ref: "#/components/parameters/Units"
+        - $ref: "#/components/parameters/Language"
+      responses:
+        "200":
+          description: Weather forecast retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Normalized forecast data returned by the service.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+  /api/v1/weather/search:
+    get:
+      tags:
+        - Weather
+      summary: Search for locations
+      operationId: searchLocations
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Location name or search term.
+          schema:
+            type: string
+            minLength: 1
+          example: London
+      responses:
+        "200":
+          description: Matching locations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: A normalized location result.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+components:
+  parameters:
+    Location:
+      name: location
+      in: query
+      required: true
+      description: City name, postal code, or another location supported by the weather provider.
+      schema:
+        type: string
+        minLength: 1
+      example: London
+
+    Units:
+      name: units
+      in: query
+      required: false
+      description: Measurement system used in the response.
+      schema:
+        type: string
+        enum:
+          - metric
+          - imperial
+        default: metric
+
+    Language:
+      name: lang
+      in: query
+      required: false
+      description: Language code used for weather descriptions, when supported by the provider.
+      schema:
+        type: string
+        example: en
+
+  responses:
+    BadRequest:
+      description: The request parameters are invalid or incomplete.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: The requested location could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    UpstreamError:
+      description: The weather provider returned an error or an invalid response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ServiceUnavailable:
+      description: The weather provider is not configured or its service is unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    GatewayTimeout:
+      description: The weather provider request timed out.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: MISSING_LOCATION
+            message:
+              type: string
+              example: The location parameter is required.
